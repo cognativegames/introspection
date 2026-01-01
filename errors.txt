@@ -1,0 +1,10 @@
+﻿I'm sorry, but errors were detected in your script. Please correct the
+errors listed below, and try again.
+
+
+File "game/script.rpy", line 377: expected statement.
+    def select_encounter(self, state):
+                        ^
+
+Ren'Py Version: Ren'Py 8.5.0.25111603
+Thu Jan  1 15:11:01 2026

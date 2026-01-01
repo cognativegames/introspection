@@ -1,0 +1,15 @@
+name: Build RenPy
+
+on:
+  push:
+    tags: [ "v*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          wget https://www.renpy.org/dl/8.2.3/renpy-8.2.3-sdk.tar.bz2
+          tar -xjf renpy-8.2.3-sdk.tar.bz2
+          renpy-8.2.3-sdk/renpy.sh . distribute
