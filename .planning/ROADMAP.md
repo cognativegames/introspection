@@ -21,6 +21,12 @@
 
 **Goal:** Fix and complete the core belief system and emotion mechanics to create a solid foundation for the game.
 
+**Plans:** 2 plans
+
+**Plan list:**
+- [ ] 01-01-PLAN.md — Fix emotion scale 0-100→0-10, add self-awareness calculation
+- [ ] 01-02-PLAN.md — Self-awareness UI at 70%, belief activation from actions
+
 **Requirements:**
 - BELIEF-01: Belief activation from player choices
 - BELIEF-02: Belief conflict detection
@@ -42,10 +48,10 @@
 3. Active conflicts trigger emotional distress (anxiety, overwhelm increases)
 4. Reality shifts trigger at appropriate thresholds (minor: 3+, moderate: 5+, severe: 7+)
 5. Player can examine and resolve belief conflicts through introspection flow
-6. All 20+ emotions initialize to baseline values from Brené Brown taxonomy
-7. adjust_emotions() correctly modifies emotions with bounds (0-100)
-8. High emotion states surface relevant belief feedback
-9. Harmony state triggers when acting in alignment with core beliefs
+6. All 17 emotions initialize to baseline values from Brené Brown taxonomy (0-10 scale)
+7. adjust_emotions() correctly modifies emotions with bounds (0-10)
+8. Self-awareness calculated as inverse of negative belief intensity
+9. Self-awareness UI toggle appears at 70% threshold
 
 **Dependencies:**
 - None (foundational)
