@@ -214,6 +214,51 @@ init python:
             return feedback
 
         # ====================================================================
+        # SELF-AWARENESS METHODS
+        # ====================================================================
+        
+        def calculate_self_awareness(self):
+            """
+            Calculate self-awareness based on negative belief intensity.
+            Higher negative belief burden = lower self-awareness.
+            Returns value in 0-10 scale.
+            """
+            negative_beliefs = self.get_active_negative_beliefs()
+            
+            if not negative_beliefs:
+                # No negative beliefs = full awareness potential
+                return 10.0
+            
+            # Calculate total burden from negative beliefs
+            total_burden = 0
+            for belief_id in negative_beliefs:
+                intensity = self.beliefs.get(belief_id, 0)
+                total_burden += intensity
+            
+            # Normalize: more burden = less awareness
+            # Max possible burden (5 beliefs at CORE intensity = 5*5 = 25)
+            max_burden = 25
+            normalized_burden = min(total_burden / max_burden, 1.0)
+            
+            # Inverse: high burden = low awareness
+            awareness = 10.0 * (1.0 - normalized_burden)
+            return max(0.0, min(10.0, awareness))
+        
+        def get_self_awareness_percentage(self):
+            """
+            Returns self-awareness as percentage (0-100).
+            Useful for UI display and comparisons.
+            """
+            return int(self.calculate_self_awareness() * 10)
+        
+        def is_self_awareness_unlocked(self):
+            """
+            Returns True when self-awareness is at least 70%.
+            This threshold unlocks certain game features.
+            """
+            return self.get_self_awareness_percentage() >= 70
+
+        # ====================================================================
         # RELATIONSHIP METHODS
         # ====================================================================
         
