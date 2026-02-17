@@ -112,9 +112,6 @@ label show_conflict(game_state):
     "[i+1]. [neg_label] vs [pos_label] [severity_bar]"
     "- Emotional impact: [emotional_impact]/10"
     
-    python:
-        return conflicts
-
 label visualize_conflicts(game_state):
     # INTRO-02: Visualize conflicts with severity and emotional impact
     call show_conflict(game_state)
