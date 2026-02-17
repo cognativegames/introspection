@@ -6,17 +6,17 @@
 
 | Field | Value |
 |-------|-------|
-| Status | Phase 1 Complete |
-| Current Phase | 01-belief-emotion-core (complete) |
-| Current Plan | All complete |
-| Last Action | Created 02-CONTEXT.md for Phase 2 |
+| Status | Phase 2 In Progress |
+| Current Phase | 02-dialogue-steering-introspection |
+| Current Plan | 02-01 Complete |
+| Last Action | Completed plan 02-01 encounter routing system |
 
 ## Phase Progress
 
 | Phase | Status | Requirements Complete | Notes |
 |-------|--------|----------------------|-------|
 | 1: Belief & Emotion Core | Complete | 11/13 | 2 plans executed |
-| 2: Dialogue Steering & Introspection | Context Gathered | 0/10 | CONTEXT.md created |
+| 2: Dialogue Steering & Introspection | In Progress | 5/10 | 1 plan completed |
 | 3: Game Flow Integration | Not Started | 0/4 | Depends on Phase 2 |
 
 ## Requirements Summary
@@ -41,6 +41,7 @@
 - 2026-02-17: Completed plan 01-01 emotion scale conversion
 - 2026-02-17: Completed plan 01-02 debug HUD and belief integration
 - 2026-02-17: Created 02-CONTEXT.md with dialogue steering decisions
+- 2026-02-17: Completed plan 02-01 encounter routing system
 
 ## Blockers
 
