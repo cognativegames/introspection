@@ -142,10 +142,33 @@ init python:
             """
             Apply emotional distress based on active belief conflicts
             Called after beliefs are activated
+            
+            Returns:
+                dict: Contains 'conflicts', 'distress', 'shift_needed', and 'harmony' status
             """
             conflicts = self.detect_belief_conflicts()
             
+            # Check for harmony state - when beliefs are aligned (no conflicts)
             if not conflicts:
+                # Check if player has positive beliefs at high intensity (alignment)
+                positive_beliefs = [(b, i) for b, i in self.beliefs.items() 
+                                   if i >= BELIEF_INTENSITY_ACTIVE 
+                                   and b in beliefs 
+                                   and beliefs[b].get("type") == "positive"]
+                
+                if len(positive_beliefs) >= 2:
+                    # Harmony state - positive beliefs aligned
+                    self.adjust_emotions(
+                        hope=5,
+                        clarity=3,
+                        connection=2
+                    )
+                    return {
+                        "conflicts": [],
+                        "distress": 0,
+                        "shift_needed": "harmony",
+                        "harmony": True
+                    }
                 return None
             
             # Calculate total emotional distress
@@ -165,7 +188,21 @@ init python:
                 clarity=-distress_amount // 2
             )
             
-            return conflicts
+            # Determine if a reality shift should be triggered
+            shift_needed = None
+            if distress_amount >= 20:
+                shift_needed = "severe"
+            elif distress_amount >= 10:
+                shift_needed = "moderate"
+            elif distress_amount >= 5:
+                shift_needed = "minor"
+            
+            return {
+                "conflicts": conflicts,
+                "distress": distress_amount,
+                "shift_needed": shift_needed,
+                "harmony": False
+            }
         
         # ====================================================================
         # EMOTION METHODS
