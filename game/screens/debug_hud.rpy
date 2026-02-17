@@ -8,6 +8,7 @@ define config.developer = True  # Set to False for release
 # Toggle variables
 default show_debug_hud = False
 default show_awareness_hud = False
+default show_awareness_ui = False
 
 # Keybind to toggle HUD
 init python:
@@ -30,7 +31,12 @@ screen introspection_hud():
     
     # Only show if enabled
     python:
-        should_show = show_debug_hud or (game_state and game_state.introspection_depth >= 3)
+        should_show = show_debug_hud or (
+            game_state and (
+                game_state.introspection_depth >= 3 or 
+                game_state.is_self_awareness_unlocked()
+            )
+        )
     
     if should_show:
         
@@ -248,6 +254,74 @@ screen awareness_indicator():
                     text "●" size 16 color "#00ffff"
 
 # ============================================================================
+# SELF-AWARENESS TOGGLE
+# Static icon that appears when self-awareness >= 70%
+# ============================================================================
+
+screen self_awareness_toggle():
+    """
+    Shows an icon when self-awareness is unlocked (>= 70%)
+    Clicking it toggles the full awareness UI
+    """
+    
+    # Only show when self-awareness is unlocked
+    if game_state and game_state.is_self_awareness_unlocked():
+        
+        # Static icon in bottom-right corner
+        imagebutton:
+            xalign 0.98
+            yalign 0.98
+            idle "gui/window_icon.png"  # Use game's window icon or a custom one
+            hover "gui/window_icon.png"
+            action ToggleVariable("show_awareness_ui")
+            tooltip "Self-Awareness: %d%%" % game_state.get_self_awareness_percentage()
+        
+        # Show awareness UI when toggled on
+        if show_awareness_ui:
+            frame:
+                xalign 0.95
+                yalign 0.85
+                xsize 300
+                background Solid("#000000aa")
+                padding (15, 10)
+                
+                vbox:
+                    spacing 5
+                    
+                    text "SELF-AWARENESS" size 14 color "#00ffff" bold True
+                    
+                    python:
+                        awareness_pct = game_state.get_self_awareness_percentage()
+                        awareness_val = game_state.calculate_self_awareness()
+                    
+                    # Progress bar
+                    bar value awareness_val range 10 xsize 200
+                    
+                    text "%d%%" % awareness_pct size 12 color "#00ffff"
+                    
+                    null height 5
+                    
+                    # Show active beliefs summary
+                    text "Active Beliefs:" size 11 color "#aaaaaa"
+                    
+                    python:
+                        active = [(b, i) for b, i in game_state.beliefs.items() 
+                                  if i >= BELIEF_INTENSITY_SURFACE]
+                    
+                    if active:
+                        for bid, intensity in active[:3]:
+                            if bid in beliefs:
+                                $ btype = beliefs[bid].get("type", "neutral")
+                                $ color = "#ff8888" if btype == "negative" else "#88ff88" if btype == "positive" else "#8888ff"
+                                text "• %s" % beliefs[bid]["statement"][:30] size 10 color color
+                    else:
+                        text "None yet" size 10 color "#666666" italic True
+                    
+                    null height 10
+                    
+                    text "Click icon to close" size 9 color "#666666" italic True
+
+# ============================================================================
 # EMOTION INSPECTOR - Hover to see Brené Brown definition
 # ============================================================================
 
@@ -426,6 +500,7 @@ init python:
     config.overlay_screens.append("npc_monitor")
     config.overlay_screens.append("awareness_indicator")
     config.overlay_screens.append("emotion_inspector")
+    config.overlay_screens.append("self_awareness_toggle")
     
 # ============================================================================
 # QUICK REFERENCE - KEYBINDS
