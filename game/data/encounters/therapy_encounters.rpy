@@ -141,11 +141,12 @@ label execute_interpretation(game_state, encounter, interpretation_type):
         The interpretation that was applied
     """
     # Find the interpretation
-    $ interpretation = None
-    for interp in encounter["interpretations"]:
-        if interp["type"] == interpretation_type:
-            $ interpretation = interp
-            break
+    python:
+        interpretation = None
+        for interp in encounter["interpretations"]:
+            if interp["type"] == interpretation_type:
+                interpretation = interp
+                break
     
     if interpretation is None:
         return None

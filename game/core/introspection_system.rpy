@@ -38,8 +38,9 @@ label show_emotion_dashboard(game_state):
     python:
         negative_emotions = {k: v for k, v in game_state.emotions.items() if v > 5}
     if negative_emotions:
-        for emotion, value in sorted(negative_emotions.items(), key=lambda x: -x[1]):
-            "- [emotion]: [value]/10"
+        python:
+            for emotion, value in sorted(negative_emotions.items(), key=lambda x: -x[1]):
+                renpy.say(None, "- %s: %d/10" % (emotion, value))
     else:
         "- No dominant negative emotions"
     
@@ -47,9 +48,10 @@ label show_emotion_dashboard(game_state):
     python:
         active_beliefs = {k: v for k, v in game_state.beliefs.items() if v > 0}
     if active_beliefs:
-        for belief_id, intensity in sorted(active_beliefs.items(), key=lambda x: -x[1]):
-            if belief_id in beliefs:
-                "- [beliefs[belief_id]['statement']]: intensity [intensity]"
+        python:
+            for belief_id, intensity in sorted(active_beliefs.items(), key=lambda x: -x[1]):
+                if belief_id in beliefs:
+                    renpy.say(None, "- %s: intensity %d" % (beliefs[belief_id]['statement'], intensity))
     else:
         "- No active beliefs yet"
     
@@ -150,10 +152,22 @@ label examine_negative_belief:
     
     dr_chen "Which negative belief would you like to examine?"
     
+    # Static menu - select by index
     menu:
-        for belief_id in active_negatives:
-            "[beliefs[belief_id]['statement']]":
-                $ selected_belief = belief_id
+        "I am unworthy of love":
+            $ selected_belief = "self.is-unworthy"
+        
+        "I am a failure":
+            $ selected_belief = "self.is-failure"
+        
+        "The world is dangerous":
+            $ selected_belief = "world.is-dangerous"
+        
+        "People are cruel":
+            $ selected_belief = "others.are-cruel"
+        
+        "Life is meaningless":
+            $ selected_belief = "existence.is-meaningless"
     
     # Show what emotions this belief creates
     python:
@@ -192,10 +206,22 @@ label examine_positive_belief:
     
     dr_chen "Which positive belief would you like to examine?"
     
+    # Static menu - select by index
     menu:
-        for belief_id in active_positives:
-            "[beliefs[belief_id]['statement']]":
-                $ selected_belief = belief_id
+        "I am worthy of love":
+            $ selected_belief = "self.is-worthy"
+        
+        "I am capable":
+            $ selected_belief = "self.is-capable"
+        
+        "The world is safe":
+            $ selected_belief = "world.is-safe"
+        
+        "People are friendly":
+            $ selected_belief = "others.are-friendly"
+        
+        "Life is meaningful":
+            $ selected_belief = "existence.is-meaningful"
     
     python:
         if selected_belief in beliefs:
