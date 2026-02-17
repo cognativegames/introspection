@@ -10,7 +10,7 @@
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 1 | Belief & Emotion Core | Fix and complete core belief system and emotion mechanics | BELIEF-01 to BELIEF-05, EMOT-01 to EMOT-04, REAL-01 to REAL-04 | 9 criteria |
-| 2 | Dialogue Steering & Introspection | Implement encounter routing and therapy mechanics | ENCO-01 to ENCO-05, INTRO-01 to INTRO-05 | 10 criteria |
+| 2 | Dialogue Steering & Introspection | Complete    | 2026-02-17 | 10 criteria |
 | 3 | Game Flow Integration | Connect systems into playable narrative flow | FLOW-01 to FLOW-04 | 4 criteria |
 
 ---
@@ -62,7 +62,7 @@
 
 **Goal:** Implement encounter routing based on player state and complete the introspection/therapy mechanics.
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 **Plan list:**
 - [ ] 02-01-PLAN.md — Encounter router + vault with 3 clusters
