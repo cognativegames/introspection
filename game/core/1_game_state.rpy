@@ -37,6 +37,10 @@ init python:
             self.completed_encounters = []
             self.interpretation_streak = {"positive": 0, "negative": 0}
             
+            # Track consecutive negative interpretations for introspection trigger
+            self.consecutive_negatives = 0
+            self.negative_interpretation_count = 0  # Total in current session
+            
             # Game goals
             self.achievements = set()
             self.rewards_unlocked = []
@@ -387,6 +391,37 @@ init python:
             if self.emotions['anxiety'] > 7 or self.emotions['overwhelm'] > 7:
                 return True
             return False
+        
+        def record_interpretation(self, interpretation_type):
+            """
+            Record player interpretation for introspection tracking.
+            
+            Args:
+                interpretation_type: "negative", "neutral", or "positive"
+            """
+            if interpretation_type == "negative":
+                self.consecutive_negatives += 1
+                self.negative_interpretation_count += 1
+                self.interpretation_streak['negative'] += 1
+                self.interpretation_streak['positive'] = 0
+            elif interpretation_type == "positive":
+                self.consecutive_negatives = 0
+                self.interpretation_streak['positive'] += 1
+                self.interpretation_streak['negative'] = 0
+            else:  # neutral
+                self.consecutive_negatives = 0
+                self.interpretation_streak['positive'] = 0
+                self.interpretation_streak['negative'] = 0
+        
+        def should_trigger_introspection(self):
+            """
+            Check if player qualifies for introspection offer.
+            
+            Returns True if:
+            - 2 or more consecutive negative interpretations
+            - 4 or more total negative interpretations in session
+            """
+            return self.consecutive_negatives >= 2 or self.negative_interpretation_count >= 4
 
 init 1 python:
     game_state = GameState()
