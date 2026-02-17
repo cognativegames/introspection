@@ -64,6 +64,31 @@ init python:
                 "scene": self.scene_count
             })
         
+        def activate_from_action(self, action_belief, intensity=BELIEF_INTENSITY_SURFACE):
+            """
+            Activate a belief based on player action.
+            This is the main entry point for dialogue/actions to trigger beliefs.
+            
+            Args:
+                action_belief: The belief ID to activate (e.g., "self.is-worthy")
+                intensity: Belief intensity (default SURFACE)
+                           Use ACTIVE (2) for significant actions
+                           Use CORE (3) for major story moments
+            """
+            # Validate belief exists
+            if action_belief not in beliefs:
+                return False
+            
+            # Activate the belief
+            self.activate_belief(action_belief, intensity)
+            
+            # Check for conflicts and apply consequences
+            conflicts = self.detect_belief_conflicts()
+            if conflicts:
+                self.apply_conflict_consequences()
+            
+            return True
+        
         def resolve_belief(self, negative_id, positive_id):
             """Transform negative belief into positive"""
             self.beliefs[negative_id] = BELIEF_INTENSITY_RESOLVED
