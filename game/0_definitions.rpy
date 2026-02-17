@@ -100,7 +100,8 @@ init -1 python:
         "statement": "I am worthy of love and kindness",
         "type": "positive",
         "domain": "self-worth",
-        "conflicts_with": ["self.is-unworthy", "self.must-earn-love", "self.is-fundamentally-flawed"]
+        "conflicts_with": ["self.is-unworthy", "self.must-earn-love", "self.is-fundamentally-flawed"],
+        "related_emotions": {"belonging": 3, "connection": 2, "hope": 2, "clarity": 1}
     }
     
     beliefs["self.is-unworthy"] = {
@@ -110,7 +111,8 @@ init -1 python:
         "domain": "self-worth",
         "absurdity": "high",
         "conflicts_with": ["self.is-worthy", "self.is-capable"],
-        "resolution": "self.is-worthy"
+        "resolution": "self.is-worthy",
+        "related_emotions": {"shame": 3, "loneliness": 3, "isolation": 2, "inadequacy": 2}
     }
     
     beliefs["self.must-earn-love"] = {
@@ -140,7 +142,8 @@ init -1 python:
         "statement": "I am capable of handling challenges",
         "type": "positive",
         "domain": "self-efficacy",
-        "conflicts_with": ["self.is-failure", "self.is-fundamentally-flawed"]
+        "conflicts_with": ["self.is-failure", "self.is-fundamentally-flawed"],
+        "related_emotions": {"hope": 2, "clarity": 2, "confidence": 2}
     }
     
     beliefs["self.is-failure"] = {
@@ -151,7 +154,8 @@ init -1 python:
         "absurdity": "extreme",
         "conflicts_with": ["self.is-capable", "self.is-resilient"],
         "resolution": "self.is-capable",
-        "deeper": ["self.is-fundamentally-flawed"]  # This belief supports the failure belief
+        "deeper": ["self.is-fundamentally-flawed"],  # This belief supports the failure belief
+        "related_emotions": {"shame": 3, "inadequacy": 3, "hopelessness": 2}
     }
     
     # WORLDVIEW CONFLICT CLUSTER
@@ -161,7 +165,8 @@ init -1 python:
         "statement": "The world is generally safe and supportive",
         "type": "positive",
         "domain": "world-view",
-        "conflicts_with": ["world.is-dangerous", "world.is-hostile"]
+        "conflicts_with": ["world.is-dangerous", "world.is-hostile"],
+        "related_emotions": {"trust": 2, "calm": 2, "hope": 1}
     }
     
     beliefs["world.is-dangerous"] = {
@@ -172,7 +177,8 @@ init -1 python:
         "absurdity": "moderate",
         "conflicts_with": ["world.is-safe", "world.is-neutral"],
         "resolution": "world.is-neutral",
-        "synthesis": "world.is-complex"
+        "synthesis": "world.is-complex",
+        "related_emotions": {"anxiety": 3, "fear": 2, "stress": 2}
     }
     
     beliefs["world.is-neutral"] = {
@@ -199,7 +205,8 @@ init -1 python:
         "statement": "Most people are generally kind and well-meaning",
         "type": "positive",
         "domain": "relationships",
-        "conflicts_with": ["others.are-cruel", "others.are-threatening"]
+        "conflicts_with": ["others.are-cruel", "others.are-threatening"],
+        "related_emotions": {"connection": 3, "belonging": 2, "trust": 2}
     }
     
     beliefs["others.are-cruel"] = {
@@ -210,7 +217,8 @@ init -1 python:
         "absurdity": "high",
         "conflicts_with": ["others.are-friendly"],
         "resolution": "others.are-complex",
-        "deeper": ["self.is-unworthy"]  # "I attract cruelty because I'm unworthy"
+        "deeper": ["self.is-unworthy"],  # "I attract cruelty because I'm unworthy"
+        "related_emotions": {"fear": 2, "isolation": 3, "anger": 2}
     }
     
     beliefs["others.are-threatening"] = {
@@ -238,7 +246,8 @@ init -1 python:
         "statement": "Life has inherent meaning and purpose",
         "type": "positive",
         "domain": "existential",
-        "conflicts_with": ["existence.is-meaningless"]
+        "conflicts_with": ["existence.is-meaningless"],
+        "related_emotions": {"hope": 3, "clarity": 2, "purpose": 2}
     }
     
     beliefs["existence.is-meaningless"] = {
@@ -249,7 +258,8 @@ init -1 python:
         "absurdity": "extreme",
         "conflicts_with": ["existence.is-meaningful", "self.can-attach-new-meaning"],
         "resolution": "self.can-attach-new-meaning",
-        "deeper": ["self.is-unworthy", "world.is-hostile"]
+        "deeper": ["self.is-unworthy", "world.is-hostile"],
+        "related_emotions": {"emptiness": 3, "hopelessness": 2, "isolation": 2}
     }
     
     beliefs["self.can-attach-new-meaning"] = {
@@ -258,7 +268,8 @@ init -1 python:
         "type": "positive",
         "domain": "existential",
         "conflicts_with": [],  # Doesn't conflict - it transcends the meaning debate
-        "note": "Synthesis of meaningless vs meaningful - personal agency over meaning"
+        "note": "Synthesis of meaningless vs meaningful - personal agency over meaning",
+        "related_emotions": {"clarity": 2, "hope": 3, "purpose": 2}
     }
     
     # VULNERABILITY CONFLICT
@@ -452,5 +463,55 @@ init -1 python:
             "baseline": 2,
             "related_beliefs": [],
             "note": "Neutral - what matters is how you act on it"
+        },
+        
+        # ADDITIONAL EMOTIONS FOR BELIEF SYSTEM
+        "trust": {
+            "group": "connection_belonging",
+            "definition": "Confidence in others' reliability and goodness",
+            "baseline": 4,
+            "related_beliefs": ["others.are-friendly", "world.is-safe"]
+        },
+        "calm": {
+            "group": "stress_overwhelm",
+            "definition": "Peaceful, relaxed state without anxiety",
+            "baseline": 4,
+            "related_beliefs": ["world.is-safe", "self.is-capable"]
+        },
+        "confidence": {
+            "group": "hope_possibility",
+            "definition": "Self-assurance in one's abilities",
+            "baseline": 4,
+            "related_beliefs": ["self.is-capable", "self.is-worthy"]
+        },
+        "purpose": {
+            "group": "clarity_awareness",
+            "definition": "Sense of meaning and direction",
+            "baseline": 4,
+            "related_beliefs": ["existence.is-meaningful", "self.can-attach-new-meaning"]
+        },
+        "self_compassion": {
+            "group": "compassion_empathy",
+            "definition": "Treating oneself with kindness and understanding",
+            "baseline": 3,
+            "related_beliefs": ["self.is-worthy", "self.is-resilient"]
+        },
+        "hopelessness": {
+            "group": "hope_possibility",
+            "definition": "Belief that things will not improve",
+            "baseline": 2,
+            "related_beliefs": ["existence.is-meaningless", "self.is-failure"]
+        },
+        "emptiness": {
+            "group": "disconnection",
+            "definition": "Feeling hollow and devoid of meaning",
+            "baseline": 2,
+            "related_beliefs": ["existence.is-meaningless", "self.is-unworthy"]
+        },
+        "detachment": {
+            "group": "disconnection",
+            "definition": "Emotional distance and disengagement",
+            "baseline": 2,
+            "related_beliefs": ["self.is-unworthy", "others.are-cruel"]
         }
     }

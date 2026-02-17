@@ -93,11 +93,65 @@ init python:
             
             return True
         
-        def resolve_belief(self, negative_id, positive_id):
-            """Transform negative belief into positive"""
+        def resolve_belief(self, negative_id, positive_id=None):
+            """
+            Resolve a negative belief and optionally assign a positive one.
+            IMMEDIATELY shifts related emotions.
+            """
+            # Set negative belief to RESOLVED state
             self.beliefs[negative_id] = BELIEF_INTENSITY_RESOLVED
-            self.beliefs[positive_id] = BELIEF_INTENSITY_CORE
-            self.introspection_depth += 1
+            
+            # INTRO-05: Immediate emotion shift
+            if positive_id:
+                self.beliefs[positive_id] = BELIEF_INTENSITY_ACTIVE
+                
+                # Get positive belief's emotional benefits
+                if positive_id in beliefs:
+                    positive_benefits = beliefs[positive_id].get("related_emotions", {})
+                    if positive_benefits:
+                        self.adjust_emotions(positive_benefits)
+            
+            # Also reduce negative emotion impact from the resolved belief
+            if negative_id in beliefs:
+                negative_impacts = beliefs[negative_id].get("related_emotions", {})
+                reduction = {}
+                for emotion, weight in negative_impacts.items():
+                    reduction[emotion] = -weight
+                if reduction:
+                    self.adjust_emotions(reduction)
+            
+            # Reset negative interpretation counter
+            self.consecutive_negatives = 0
+            
+            # Track for history
+            self.belief_history.append({
+                "belief": negative_id,
+                "action": "resolved",
+                "with": positive_id,
+                "scene": self.scene_count
+            })
+            
+            return True
+        
+        def update_belief(self, belief_id, intensity):
+            """Update belief intensity - also updates related emotions"""
+            old_intensity = self.beliefs.get(belief_id, 0)
+            self.beliefs[belief_id] = intensity
+            
+            # Immediate emotion adjustment on belief change
+            if belief_id in beliefs:
+                belief_data = beliefs[belief_id]
+                emotion_impacts = belief_data.get("related_emotions", {})
+                
+                if emotion_impacts:
+                    delta = {}
+                    for emotion, weight in emotion_impacts.items():
+                        change = (intensity - old_intensity) * weight
+                        if change != 0:
+                            delta[emotion] = change
+                    
+                    if delta:
+                        self.adjust_emotions(delta)
         
         def get_active_negative_beliefs(self):
             """Get all active negative beliefs"""
