@@ -62,6 +62,12 @@
 
 **Goal:** Implement encounter routing based on player state and complete the introspection/therapy mechanics.
 
+**Plans:** 2 plans
+
+**Plan list:**
+- [ ] 02-01-PLAN.md — Encounter router + vault with 3 clusters
+- [ ] 02-02-PLAN.md — Introspection triggers + therapy sessions
+
 **Requirements:**
 - ENCO-01: Encounter router integration
 - ENCO-02: Anxiety-based routing
