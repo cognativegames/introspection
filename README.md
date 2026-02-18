@@ -89,91 +89,160 @@ This question enables:
 
 ## GAME ENGINE ARCHITECTURE
 
-### State Management System
+### Unified Entity System
+
+**CRITICAL DESIGN:** Player and ALL NPCs use the exact same state management system. This creates emergent behavior where NPCs react authentically based on their own belief systems, not scripted responses.
+
+### GameState (Player Character)
 
 ```python
-player_state = {
-    # Identity
-    "name": "",
-    "name_chosen": False,
-    
-    # Awareness & Mental State
-    "awareness_level": 0-10,  # Understanding of belief systems
-    "panic_level": 0-10,      # Current anxiety/fear
-    "reality_stability": 0-10, # How consistent perception is
-    
-    # Belief System
-    "core_beliefs": {},       # Dict of core beliefs
-    "surface_beliefs": {},    # Dict of surface beliefs
-    "on_mind": [],           # Array of currently active beliefs
-    
-    # Moral Alignment
-    "evil_acts": [],         # Track harmful actions
-    "redemption_moments": [], # Track genuine change attempts
-    "recent_belief_violations": 0,
-    
-    # Introspection
-    "max_introspection_depth": 1-3,
-    "introspection_opportunity_rate": 1.0,
-    "can_apply_context": True,
-    
-    # Emotional State
-    "current_emotion": "",
-    "emotion_intensity": 0-10,
-    "emotion_clarity": 0-10,
-    "suppressed_emotions": 0,
-    "anxiety_level": 0-10,
-    "shame_level": 0-10,
-    
-    # Physical State
-    "physical_discomfort": 0-10,
-    "mental_energy": 0-10,
-    "sedation_level": 0-10,
-    
-    # Drugs
-    "active_drugs": [],
-    "drug_history": [],
-    
-    # Relationships
-    "character_relationships": {}
-}
+class GameState:
+    """
+    The player character's complete internal state.
+    Located: /core/models/GameState/GameState.rpy
+    """
+    def __init__(self):
+        # Core State
+        self.phase = GAME_PHASE_STORY  # Current game phase
+        self.chapter = 1
+        self.scene_count = 0
+        
+        # Emotional State (0-100 scale)
+        self.emotions = {
+            "hope": 50,
+            "anxiety": 30,
+            "clarity": 50,
+            "overwhelm": 20,
+            "connection": 40,
+            "isolation": 30
+        }
+        
+        # Belief Tracking with Intensity
+        self.beliefs = {}  # belief_id -> intensity (0-5)
+        #   0 = DORMANT (not active)
+        #   1 = SURFACE (aware of belief)
+        #   2 = ACTIVE (driving behavior)
+        #   3 = CORE (identity-level)
+        #   4 = EXAMINED (introspected upon)
+        #   5 = RESOLVED (transformed)
+        
+        self.belief_history = []  # Track transformation journey
+        
+        # Encounter Management
+        self.current_encounter = None
+        self.encounter_queue = []
+        self.completed_encounters = []
+        self.interpretation_streak = {"positive": 0, "negative": 0}
+        
+        # Relationships
+        self.relationships = {}  # character_id -> trust_level
+        
+        # Narrative State
+        self.story_flags = set()
+        self.introspection_depth = 0  # How deep player has gone
+        
+        # Legacy Fields (for compatibility)
+        self.evil_acts = []
+        self.redemption_moments = []
+        
+    # Methods
+    def activate_belief(belief_id, intensity)
+    def detect_belief_conflicts()
+    def apply_conflict_consequences()
+    def adjust_emotions(changes)
+    def get_dominant_emotion()
+    def get_active_negative_beliefs()
+    def resolve_belief(belief_id)
+    def is_ready_for_introspection()
 ```
 
-### NPC State Management
+### NPCState (ALL Non-Player Characters)
 
 ```python
-npc_state = {
-    "character_name": {
-        # Trust & Relationship
-        "trust": 0-10,
-        "attraction": 0-10,
-        "relationship_status": "stranger/friend/romantic/estranged",
+class NPCState:
+    """
+    IDENTICAL structure to player. Each NPC has their own:
+    - Belief system
+    - Emotional state
+    - Conflict detection
+    - Memory storage
+    - Relationship tracking
+    
+    Located: npc_system.rpy
+    """
+    def __init__(self, npc_id, name):
+        # SAME emotional system as player
+        self.emotions = {
+            "hope": 50,
+            "anxiety": 30,
+            "clarity": 50,
+            "overwhelm": 20,
+            "connection": 40,
+            "isolation": 30,
+            "trust": 50,    # NPC-specific
+            "safety": 50    # NPC-specific
+        }
         
-        # Healing Progress
-        "trauma_healing": 0-10,
-        "self_awareness": 0-10,
-        "therapy_progress": 0-10,
+        # SAME belief system as player
+        self.beliefs = {}  # belief_id -> intensity (0-5)
+        self.belief_history = []
         
-        # Betrayal & Forgiveness
-        "betrayal_count": 0,
-        "forgiveness_capacity": 0-10,
-        "can_forgive": True/False,
-        "forgiveness_timer": 0,  # Days before can process
-        "boundaries_established": True/False,
-        "witnessed_change": 0-10,  # Player's genuine growth
+        # Relationship tracking (NPC's view of others)
+        self.relationships = {}  # character_id -> relationship_data
         
-        # Belief System (populated per character)
-        "core_beliefs": {},
-        "trauma_beliefs": {},
-        "current_emotional_state": "",
+        # Memory system (NPC remembers interactions)
+        self.memories = []  # Significant events
         
-        # Story Progress
-        "arc_stage": "",
-        "secrets_revealed": [],
-        "plot_flags": {}
-    }
-}
+        # Trauma and healing
+        self.trauma_active = []
+        self.healing_progress = 0  # 0-100
+        
+        # Therapy participation
+        self.sessions_attended = 0
+        self.breakthroughs = []
+        self.ready_to_confront = []  # Topics ready to discuss
+        
+        # State
+        self.introspection_depth = 0
+        self.openness = 50  # How open to player (0-100)
+    
+    # SAME methods as player
+    def activate_belief(belief_id, intensity)
+    def detect_belief_conflicts()
+    def adjust_emotions(changes)
+    def remember_event(type, character, description, impact)
+    def interpret_player_action(action_type, context)
+    def will_bring_up_in_therapy(memory)
+    def get_therapy_topic()
 ```
+
+### Why This Matters
+
+**Traditional AVN Approach:**
+```renpy
+# NPCs have scripted responses
+if player_seduced_npc:
+    npc "Oh, okay I guess..."
+```
+
+**Our Approach:**
+```python
+# NPCs interpret actions through THEIR belief system
+npc = get_npc("sarah")
+interpretation = npc.interpret_player_action("seduction", {"vulnerable": True})
+
+# If Sarah believes "others.use-me" (ACTIVE):
+#   → She feels anxious, trust drops, remembers as violation
+#   → Will bring up in therapy when safety is high enough
+#   → Response is authentic to HER trauma, not scripted
+
+# If Sarah believes "self.is-worthy" (ACTIVE):
+#   → She sets boundary, trust drops slightly but respect increases
+#   → Remembers player tried but she advocated for herself
+#   → May teach this in group therapy
+```
+
+**Result:** NPCs behave consistently based on their internal state, creating emergent storylines that feel real.
 
 ### Reality Shift System
 
@@ -184,21 +253,21 @@ shift_severity = {
         "physical": "severe_headpain",
         "duration": 5.0,
         "message": "Your skull feels like it's splitting apart. Reality tears at the seams.",
-        "trigger": "Major evil acts against core beliefs"
+        "trigger": "Major belief conflicts, repeated violations"
     },
     "severe": {  # 3-4 reality_stability
         "visual": "major_distortion",
         "physical": "sharp_headpain",
         "duration": 3.0,
         "message": "A spike of pain lances through your head. The world lurches sideways.",
-        "trigger": "Significant evil acts"
+        "trigger": "Significant belief conflicts"
     },
     "moderate": {  # 5-6 reality_stability
         "visual": "reality_flicker",
         "physical": "dull_throb",
         "duration": 1.5,
         "message": "Your head throbs. Something feels wrong.",
-        "trigger": "Minor evil acts or good acts against evil beliefs"
+        "trigger": "Minor conflicts or acting against beliefs"
     },
     "minor": {  # 7-8 reality_stability
         "visual": "subtle_shift",
@@ -216,6 +285,118 @@ shift_severity = {
     }
 }
 ```
+
+### Encounter Loop (Introspection Mini-Game)
+
+The core therapeutic game mechanic where players discover and transform beliefs.
+
+**Location:** `/core/encounter_loop_system.rpy`
+
+**Flow:**
+1. **Story Chapter** → Triggers therapy session
+2. **Therapy** → Launches encounter loop
+3. **Select Encounter** → Based on emotions + beliefs
+4. **Present Situation** → Ambiguous scenario
+5. **Player Interprets** → Activates beliefs
+6. **Show Consequences** → Emotional + reality feedback
+7. **Detect Conflicts** → If contradictory beliefs active
+8. **Offer Introspection** → Examine and resolve
+9. **Repeat or End** → 3-5 encounters per session
+10. **Return to Story** → Progress continues
+
+**Encounter Structure:**
+```python
+encounters["encounter_id"] = {
+    "id": "unique_id",
+    "type": "ambiguous" | "clear",
+    "addresses_beliefs": ["belief.id.list"],
+    "scene": "background_name",
+    "tags": ["calming", "stressful", "connection", "grounding"],
+    "requires_depth": 0-5,  # Introspection depth needed
+    
+    "observation": "What happens in the scenario",
+    "context": "Setting and atmosphere",
+    
+    "interpretations": [
+        {
+            "display": "How player interprets it",
+            "activates": ["belief.ids"],
+            "intensity": BELIEF_INTENSITY_LEVEL,
+            "aligns": True/False,  # Matches reality?
+            "emotion_shift": {"emotion": change}
+        }
+    ]
+}
+```
+
+**Emotion-Driven Selection:**
+- High anxiety (>70) → Calming encounters
+- High isolation (>70) → Connection encounters
+- High overwhelm (>70) → Grounding encounters
+- Negative streak (3+) → Clear/simple encounters
+- Positive streak (3+) → Deeper encounters
+
+### Belief Conflict System
+
+**The Core Mechanic:** Suffering comes from holding contradictory beliefs, not from single beliefs alone.
+
+**Location:** `/core/belief_conflict_system.rpy`
+
+**Example:**
+```python
+# Player has both beliefs active:
+beliefs["self.is-worthy"] = BELIEF_INTENSITY_ACTIVE
+beliefs["self.is-unworthy"] = BELIEF_INTENSITY_CORE
+
+# System auto-detects conflict
+conflicts = game_state.detect_belief_conflicts()
+# Returns: [("self.is-worthy", "self.is-unworthy", CORE)]
+
+# Applies distress
+game_state.apply_conflict_consequences()
+# Result: anxiety +25, overwhelm +20, clarity -15
+
+# Offers resolution
+call show_belief_conflict
+# Player must choose: Keep one? Transcend both?
+```
+
+**Resolution Paths:**
+1. **Choose One Belief** - Examine and resolve the other
+2. **Synthesis** - Find belief that transcends the conflict
+3. **Not Ready** - Conflict persists, distress continues
+
+### Group Therapy System
+
+**Location:** `/core/npc_dialogue_system.rpy`
+
+NPCs can bring up memories from interactions with player:
+
+```python
+# NPC decides what to share
+topic = npc.get_therapy_topic()
+
+# Factors:
+# - Healing progress (higher = more likely)
+# - Safety level (higher = more likely)
+# - Event severity (violation > healing)
+# - Time since event (recent = urgent)
+
+# If player violated boundaries:
+if memory["type"] == "boundary_violation" and memory["with"] == "player":
+    # NPC confronts player in therapy
+    # Player must respond:
+    #   - Apologize genuinely → NPC heals, trust increases
+    #   - Justify/defend → NPC retraumatized, trust destroyed
+    #   - Take accountability → Major healing moment
+```
+
+**Dynamic Consequences:**
+- NPCs remember everything
+- Therapy becomes accountability mechanism
+- Other NPCs witness and react
+- Player's reputation evolves
+- Relationships heal or fracture organically
 
 ---
 
@@ -354,11 +535,11 @@ shift_severity = {
 }
 ```
 
-#### 4. ALEXIS - Sex Addiction / Hypersexuality
+#### 4. JILL - Sex Addiction / Hypersexuality
 
 ```json
 {
-  "name": "Alexis",
+  "name": "Jill",
   "age": 26,
   "presenting_issue": "Compulsive sexual behavior, can't maintain relationships, sabotages intimacy",
   "surface_story": "Wild child, party girl, 'I just like sex, what's wrong with that?', defensive",
@@ -587,7 +768,7 @@ shift_severity = {
 }
 ```
 
-#### 13. THOMAS - Alexis's Previous Therapist
+#### 13. THOMAS - Jill's Previous Therapist
 
 ```json
 {
@@ -714,7 +895,7 @@ shift_severity = {
   - Becky and Marcus married, first daughter named after therapist
   - Maria sober, saved Carlos, running treatment center
   - Jasmine reunited with family, honoring Lily's memory
-  - Alexis in healthy relationship, running CSA support group
+  - Jill in healthy relationship, running CSA support group
 - Player either:
   - Enters relationship with chosen character(s)
   - Becomes therapist/counselor themselves
@@ -1187,7 +1368,7 @@ Good path: Achieve maximum consistency possible
 **Becky:** Soft, anxious, seeks validation, talks about Marcus frequently, self-deprecating humor
 **Maria:** Professional, controlled exterior, hints of chaos underneath, deflects with sarcasm
 **Jasmine:** Tired, defeated, flashes of who she used to be, talks about Lily when she can
-**Alexis:** Defensive, sexualized language, covers pain with bravado, softer when walls come down
+**Jill:** Defensive, sexualized language, covers pain with bravado, softer when walls come down
 
 **Dr. Chen:** Calm, measured, therapeutic, warm but professional, asks good questions
 **Nurse Reyes:** Direct, no-nonsense, caring but firm, calls out bullshit
@@ -1271,6 +1452,194 @@ menu:
 
 ## TECHNICAL IMPLEMENTATION
 
+### File Structure
+
+```
+game/
+├── core/
+│   ├── models/
+│   │   ├── GameState/          # Player state management
+│   │   ├── EncounterRouter/    # Encounter selection logic
+│   │   └── NPCState/           # NPC state (via npc_system.rpy)
+│   ├── context/
+│   │   ├── beliefs/            # Belief definitions by domain
+│   │   │   ├── self/
+│   │   │   ├── world/
+│   │   │   ├── others/
+│   │   │   ├── existence/
+│   │   │   └── animals/
+│   │   └── encounters/         # Encounter scenario definitions
+│   ├── beliefs.rpy             # Belief activation logic
+│   ├── introspection.rpy       # Introspection mechanics
+│   ├── reality_shifts.rpy      # Reality shift triggers
+│   ├── forgiveness.rpy         # Forgiveness mechanics
+│   └── constants.rpy           # Game constants
+├── data/
+│   ├── characters.rpy          # Character definitions
+│   ├── variables.rpy           # Global game state
+│   └── transitions.rpy         # Scene transitions
+├── story/
+│   ├── chapter01/
+│   │   └── script.rpy          # Hospital awakening
+│   ├── chapter02/              # Future chapters
+│   └── therapy/
+│       └── sessions.rpy        # Therapy dialogues
+├── ui/
+│   ├── screens.rpy             # UI screens
+│   ├── ui_layout.rpy           # Layout definitions
+│   └── ui_styles.rpy           # Visual styling
+└── assets/
+    ├── images/                 # Character sprites, backgrounds
+    ├── audio/                  # Music and SFX
+    └── fonts/                  # Typography
+
+# External Systems (provided)
+├── npc_system.rpy              # NPCState class
+├── npc_dialogue_system.rpy     # Dynamic NPC responses
+├── belief_conflict_system.rpy  # Conflict detection
+├── encounter_loop_system.rpy   # Encounter mini-game
+└── encounter_system_helpers.rpy # Selection logic, UI
+```
+
+### Key Systems Integration
+
+**1. Belief Activation Flow:**
+```renpy
+# Player makes choice in encounter
+menu:
+    "I'm worthy of love":
+        $ game_state.activate_belief("self.is-worthy", BELIEF_INTENSITY_ACTIVE)
+        
+        # Auto-check for conflicts
+        python:
+            conflicts = game_state.detect_belief_conflicts()
+            if conflicts:
+                conflict_data = game_state.apply_conflict_consequences()
+                # Anxiety increases, clarity decreases
+        
+        # Show consequences
+        call show_interpretation_consequence
+            # May trigger reality shift
+            # May offer introspection
+```
+
+**2. NPC Reaction Flow:**
+```renpy
+# Player action in story
+menu:
+    "Seduce Sarah while she's vulnerable":
+        python:
+            sarah = get_npc("sarah")
+            
+            # Sarah interprets through HER beliefs
+            interpretation = sarah.interpret_player_action(
+                "seduction", 
+                {"vulnerable": True}
+            )
+            
+            # Sarah's emotions shift
+            sarah.adjust_emotions(interpretation["emotion_shift"])
+            
+            # Sarah remembers
+            sarah.remember_event(
+                "boundary_violation",
+                "player",
+                "Player tried to seduce me when vulnerable",
+                interpretation["emotion_shift"]
+            )
+            
+            # Sarah's relationship with player changes
+            rel = sarah.get_relationship_with("player")
+            rel["trust"] -= 20
+            rel["boundary_violations"] += 1
+        
+        # Later, in group therapy:
+        call group_therapy_session
+            # Sarah may bring this up
+            # Player must respond
+            # Other NPCs witness
+```
+
+**3. Encounter Loop Flow:**
+```renpy
+# From story
+label chapter_2_therapy:
+    scene therapy_office
+    show therapist
+    
+    therapist "Let's do some scenario work."
+    
+    # Launch encounter loop (3-5 encounters)
+    call encounter_loop_start
+    
+    # Returns here after session
+    therapist "Good work today. How do you feel?"
+    
+    # Continue story
+    jump chapter_2_scene_3
+```
+
+### Data Persistence
+
+All state persists via RenPy's save system:
+- `game_state` (player beliefs, emotions, progress)
+- `npc_states{}` (all NPC states)
+- `encounters{}` (completed encounters)
+- Story flags and relationship data
+
+### Performance Considerations
+
+- Belief conflict detection runs O(n²) worst case, but n is small (<50 beliefs)
+- NPC state updates are event-driven, not per-frame
+- Encounter selection caches results
+- Memory system prunes old entries (keep last 20 per NPC)
+
+### Extensibility
+
+Adding new content:
+
+**New Belief:**
+```python
+# In /core/context/beliefs/domain/new_belief.rpy
+init 20 python:
+    beliefs["new.belief-id"] = {
+        "id": "new.belief-id",
+        "statement": "I am...",
+        "type": "positive" | "negative" | "neutral",
+        "conflicts_with": ["other.belief.id"],
+        "resolution": "target.belief.id"
+    }
+```
+
+**New Encounter:**
+```python
+# In /core/context/encounters/new_encounter.rpy
+init 20 python:
+    encounters["new_encounter"] = {
+        "id": "new_encounter",
+        "type": "ambiguous",
+        "addresses_beliefs": ["belief.ids"],
+        "observation": "What happens",
+        "interpretations": [...]
+    }
+```
+
+**New NPC:**
+```python
+# In game initialization
+init python:
+    initialize_npc(
+        "new_npc",
+        "NPC Name",
+        starting_beliefs={
+            "belief.id": BELIEF_INTENSITY_CORE
+        },
+        starting_emotions={
+            "anxiety": 60
+        }
+    )
+```
+
 ### RenPy Project Structure
 
 ```
@@ -1283,7 +1652,7 @@ introspection/
 │   │   ├── chapter_04_becky_arc.rpy
 │   │   ├── chapter_05_maria_arc.rpy
 │   │   ├── chapter_06_jasmine_arc.rpy
-│   │   ├── chapter_07_alexis_arc.rpy
+│   │   ├── chapter_07_jill_arc.rpy
 │   │   ├── chapter_08_convergence.rpy
 │   │   ├── chapter_09_revelation.rpy
 │   │   ├── chapter_10_consequences.rpy
@@ -1300,7 +1669,7 @@ introspection/
 │   │   ├── becky.rpy
 │   │   ├── maria.rpy
 │   │   ├── jasmine.rpy
-│   │   ├── alexis.rpy
+│   │   ├── jill.rpy
 │   │   ├── dr_chen.rpy
 │   │   ├── nurse_reyes.rpy
 │   │   └── detective_rivera.rpy
@@ -1395,7 +1764,7 @@ introspection/
 - [ ] Complete Chapter 4 (Becky's arc)
 - [ ] Complete Chapter 5 (Maria's arc)
 - [ ] Complete Chapter 6 (Jasmine's arc)
-- [ ] Complete Chapter 7 (Alexis's arc)
+- [ ] Complete Chapter 7 (Jill's arc)
 - [ ] Complete Chapter 8 (Convergence)
 - [ ] Implement all good path scenes
 - [ ] Implement all evil path scenes
@@ -1459,7 +1828,7 @@ introspection/
 - **Self-Harm:** Cutting, self-destructive behavior
 - **Substance Abuse:** Alcohol, drugs, addiction
 - **Sexual Content:** Explicit adult scenes
-- **Sexual Assault:** Past CSA discussed (Alexis's story), date rape (Dr. Chen's story)
+- **Sexual Assault:** Past CSA discussed (Jill's story), date rape (Dr. Chen's story)
 - **Grief & Loss:** Death of children, parents, loved ones
 - **Mental Illness:** Depression, anxiety, dissociation
 - **Medical Trauma:** Hospital scenes, forced medication
@@ -1638,11 +2007,11 @@ This game deals with a protagonist who committed rape while intoxicated and is a
 }
 ```
 
-**ALEXIS:**
+**JILL:**
 ```json
 {
-  "character_name": "Alexis",
-  "character_id": "alexis",
+  "character_name": "Jill",
+  "character_id": "jill",
   "core_beliefs": {
     "SCHEMA_TO_BE_POPULATED": "using above structure"
   },
@@ -1748,7 +2117,7 @@ If even one player reaches that point, feels that horror, and chooses differentl
 
 **Principle:** Never exploit trauma for shock value.
 
-Every difficult scene serves the therapeutic arc. The CSA revelation isn't gratuitous—it explains Alexis's hypersexuality and gives context for healing. The suicide attempt isn't edgy—it's the core mystery that makes the whole game meaningful.
+Every difficult scene serves the therapeutic arc. The CSA revelation isn't gratuitous—it explains Jill's hypersexuality and gives context for healing. The suicide attempt isn't edgy—it's the core mystery that makes the whole game meaningful.
 
 We show the harm. We show the healing. We give players agency to choose which path they want to walk.
 
@@ -1828,28 +2197,46 @@ A: "Your beliefs create your reality. You can choose different beliefs. You can 
 
 ## VERSION HISTORY
 
-**v0.1 - Project Initialization (Current)**
+**v0.1 - Project Initialization**
 - Complete project documentation
 - Core systems designed
 - Character arcs outlined
 - Technical architecture planned
 
-**v0.2 - Core Systems Implementation (Planned)**
-- Belief system coded
-- Drug system coded
-- Reality shift system coded
-- State management implemented
+**v0.2 - Core Systems Implementation (COMPLETE)**
+- ✅ Unified entity system (player + NPCs)
+- ✅ Belief system with intensity levels
+- ✅ Conflict detection and resolution
+- ✅ Emotional state management
+- ✅ Encounter loop system
+- ✅ Group therapy mechanics
+- ✅ Dynamic NPC dialogue system
+- ✅ Memory and relationship tracking
+- ⏳ Drug system (legacy, needs integration)
+- ⏳ Reality shift visuals (labels exist, art needed)
 
-**v0.3 - Chapter 1 Prototype (Planned)**
-- Playable Chapter 1
-- Placeholder art
-- Core mechanics testable
+**v0.3 - Content Creation Phase (IN PROGRESS)**
+- ✅ Chapter 1 framework (hospital awakening)
+- ⏳ NPC belief definitions (5-8 characters)
+- ⏳ Encounter library (30-50 scenarios)
+- ⏳ Therapy session dialogues
+- ⏳ Story chapters 2-5
+- ⏳ Placeholder art
 
-**v1.0 - Full Release (Target: 12-18 months)**
+**v0.4 - Integration & Polish (PLANNED)**
+- Story ↔ encounter loop flow
+- All NPC arcs connected
+- Complete playthrough testing
+- Balance pass (emotions, beliefs, difficulty)
+
+**v1.0 - Full Release (TARGET: 12-18 months)**
 - All chapters complete
 - All art final
 - All paths playable
+- Music and sound
 - Fully tested and polished
+
+**Current Status:** Systems ~90% complete, Content ~10% complete
 
 ---
 
@@ -1890,6 +2277,70 @@ A: "Your beliefs create your reality. You can choose different beliefs. You can 
 
 ---
 
+## ENGINE ARCHITECTURE NOTES
+
+### The Unified System Breakthrough
+
+**Design Decision:** Player and all NPCs run on identical state machines.
+
+**Why This Matters:**
+- NPCs aren't scripted—they react based on their internal beliefs
+- Same code handles player introspection and NPC therapy moments
+- Conflicts work the same way for everyone
+- Behavior emerges from state, not from branching if/else trees
+
+**Example:**
+```python
+# This code works for ANY entity (player or NPC)
+def process_event(entity, event_type, context):
+    interpretation = entity.interpret_through_beliefs(event_type, context)
+    entity.adjust_emotions(interpretation.emotion_shift)
+    entity.remember_event(event_type, interpretation)
+    
+    conflicts = entity.detect_belief_conflicts()
+    if conflicts:
+        entity.apply_conflict_distress()
+        
+        if entity.ready_for_introspection():
+            offer_introspection_to(entity)
+```
+
+**Result:** 
+- Becky's response to betrayal is determined by HER beliefs about trust
+- Marcus's forgiveness capacity is determined by HIS beliefs about redemption  
+- Dr. Chen's therapeutic approach shifts based on HER emotional state
+- All emergent, all authentic, minimal hardcoding
+
+### What's Actually Left
+
+**Systems (10%):**
+- Drug system integration (exists but not wired to new system)
+- Reality shift visual effects (labels exist, need backgrounds)
+- Journal/review UI screens
+- Save/load verification
+
+**Content (90%):**
+- 5-8 fully-defined NPCs with belief trees
+- 30-50 encounter scenarios
+- All story chapters (2-5+)
+- Group therapy dialogues
+- Character art and backgrounds
+- Music and sound effects
+
+### The Content Challenge
+
+With engine ~90% complete, the work shifts to:
+
+1. **Writing** - Thousands of lines of authentic dialogue
+2. **Character Design** - Deep psychological profiles for each NPC
+3. **Scenario Creation** - Ambiguous situations that test beliefs
+4. **Art Direction** - Visual language for reality shifts and emotions
+5. **Testing** - Balance, pacing, emotional impact
+
+This is where the craft shifts from engineering to storytelling.
+
+---
+
 ## FINAL THOUGHTS
 
 This is not just a game. It's a tool for transformation disguised as entertainment.
@@ -1906,6 +2357,7 @@ Let's build something that matters.
 
 **END OF PROJECT REFERENCE GUIDE**
 
-*Last Updated: [Current Date]*
-*Version: 0.1*
-*Status: Pre-Production*
+*Last Updated: February 2026*
+*Version: 0.2 (Core Systems Complete)*
+*Status: Content Creation Phase*
+*Engine: ~90% Complete | Content: ~10% Complete*

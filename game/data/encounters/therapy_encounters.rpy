@@ -128,7 +128,7 @@ label run_encounter(encounter):
 label encounter_after_interpretation:
     # Check if introspection should trigger
     if game_state.should_trigger_introspection():
-        jump offer_introspection
+        jump offer_deep_introspection
     
     dr_chen "Let's continue processing this."
     return
@@ -165,10 +165,11 @@ label execute_interpretation(game_state, encounter, interpretation_type):
     return interpretation
 
 # ============================================================================
-# INTROSPECTION OFFER
+# DEEP INTROSPECTION OFFER
+# Alternative introspection path (not the main one)
 # ============================================================================
 
-label offer_introspection:
+label offer_deep_introspection:
     """
     Offer deep introspection after multiple negative interpretations.
     """

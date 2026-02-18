@@ -274,7 +274,7 @@ Define all characters in RenPy with proper character objects and color coding.
 **Acceptance Criteria:**
 - [ ] All 13 characters defined in `/game/characters/definitions.rpy`
 - [ ] Character objects created:
-  - Becky, Maria, Jasmine, Alexis
+  - Becky, Maria, Jasmine, Jill
   - Dr. Sarah Chen, Nurse Reyes, Detective Rivera
   - Marcus, Daniel, Carlos
   - Father James, The Watcher, Thomas
@@ -589,7 +589,7 @@ Write the progressive revelations each character makes in group therapy from sur
   - Week 5: "I don't know who I am without someone to be devoted to"
 - [ ] Maria's progression documented (5 weeks)
 - [ ] Jasmine's progression documented (5 weeks)
-- [ ] Alexis's progression documented (5 weeks)
+- [ ] Jill's progression documented (5 weeks)
 - [ ] Each share has:
   - Emotional authenticity
   - Appropriate depth for week
@@ -876,13 +876,13 @@ Write complete dialogue and scenes for Jasmine's arc including drug addiction, g
 
 ---
 
-### Issue #34: Write Alexis's Complete Character Arc (Chapter 7)
+### Issue #34: Write Jill's Complete Character Arc (Chapter 7)
 **Labels:** `content`, `writing`, `priority-critical`, `sensitive-content`  
 **Effort:** 20 hours  
 **Dependencies:** Character arcs document
 
 **Description:**
-Write complete dialogue and scenes for Alexis's arc including CSA trauma, hypersexuality, and Sophie reunion.
+Write complete dialogue and scenes for Jill's arc including CSA trauma, hypersexuality, and Sophie reunion.
 
 **Acceptance Criteria:**
 - [ ] Introduction showing hypersexual behavior
@@ -932,7 +932,7 @@ Create system to track evil acts and accumulate consequences that manifest in Ch
   - Becky: Father's death while cheating
   - Maria: Carlos's kidney failure
   - Jasmine: Marcus traumatized
-  - Alexis: Missed healing with Sophie
+  - Jill: Missed healing with Sophie
 - [ ] Evil path flag set if evil_acts.length >= 5
 - [ ] Test: Commit evil act, verify tracking and consequences
 
@@ -1063,7 +1063,7 @@ Create character sprites and personal room backgrounds for all main characters.
   - Becky (neutral, happy, sad, anxious, crying, intimate)
   - Maria (neutral, professional, drunk, withdrawing, happy, intimate)
   - Jasmine (neutral, exhausted, high, sober, grieving, intimate)
-  - Alexis (neutral, defensive, sexual, vulnerable, healing, intimate)
+  - Jill (neutral, defensive, sexual, vulnerable, healing, intimate)
   - Dr. Chen (professional, warm, concerned, approving)
   - Nurse Reyes (neutral, caring, stern, suspicious)
   - Detective Rivera (professional, probing, sympathetic)
@@ -1071,7 +1071,7 @@ Create character sprites and personal room backgrounds for all main characters.
   - Becky's room (cute, personal photos)
   - Maria's room (organized, minimalist)
   - Jasmine's room (sparse, medication visible)
-  - Alexis's room (provocative decor, armor)
+  - Jill's room (provocative decor, armor)
 - [ ] ComfyUI rendering with best consistency possible
 - [ ] Multiple variants for reality stability levels
 - [ ] Test: All sprites and backgrounds display properly
@@ -1148,7 +1148,7 @@ Write all good path outcomes where male characters arrive, reunions happen, heal
 - [ ] Marcus arrives for Becky reunion
 - [ ] Daniel and Marcus(son) arrive for Jasmine
 - [ ] Carlos arrives for Maria
-- [ ] Sophie reveals abuser imprisoned for Alexis
+- [ ] Sophie reveals abuser imprisoned for Jill
 - [ ] Each reunion scene:
   - Emotional and authentic
   - Thanks player for their role
@@ -1158,7 +1158,7 @@ Write all good path outcomes where male characters arrive, reunions happen, heal
   - Becky: Married, names daughter after therapist
   - Maria: Sober, saved Carlos, runs treatment center
   - Jasmine: Reunited with family, honoring Lily
-  - Alexis: Running CSA support group with Sophie
+  - Jill: Running CSA support group with Sophie
 - [ ] Player sees they broke the cycle
 - [ ] Can forgive past self
 - [ ] Can forgive original abuser (optional)
@@ -1234,7 +1234,7 @@ Write multiple ending variations for good path based on romance choices and play
   - Becky ending
   - Maria ending
   - Jasmine ending
-  - Alexis ending
+  - Jill ending
   - Dr. Chen ending (post-treatment)
   - Nurse Reyes ending
   - Polyamory ending (if pursued honestly)
@@ -1637,7 +1637,7 @@ Have mental health professionals and sensitivity readers review content for ther
   - Drug effects
   - Suicide content
   - Trauma handling
-- [ ] CSA survivor reviews Alexis's arc
+- [ ] CSA survivor reviews Jill's arc
 - [ ] Addiction specialist reviews Maria/Jasmine arcs
 - [ ] Self-harm expertise reviews Becky's arc
 - [ ] All feedback documented
@@ -2097,7 +2097,7 @@ Define all characters in RenPy with proper character objects and color coding.
 **Acceptance Criteria:**
 - [ ] All 13 characters defined in `/game/characters/definitions.rpy`
 - [ ] Character objects created:
-  - Becky, Maria, Jasmine, Alexis
+  - Becky, Maria, Jasmine, Jill
   - Dr. Sarah Chen, Nurse Reyes, Detective Rivera
   - Marcus, Daniel, Carlos
   - Father James, The Watcher, Thomas
@@ -2412,7 +2412,7 @@ Write the progressive revelations each character makes in group therapy from sur
   - Week 5: "I don't know who I am without someone to be devoted to"
 - [ ] Maria's progression documented (5 weeks)
 - [ ] Jasmine's progression documented (5 weeks)
-- [ ] Alexis's progression documented (5 weeks)
+- [ ] Jill's progression documented (5 weeks)
 - [ ] Each share has:
   - Emotional authenticity
   - Appropriate depth for week

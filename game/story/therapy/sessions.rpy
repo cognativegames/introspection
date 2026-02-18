@@ -111,7 +111,7 @@ init python:
 # Connect to encounter system
 # ============================================================================
 
-label offer_encounter(game_state):
+label offer_therapy_encounter(game_state):
     # Offer player an encounter from the vault
     # This integrates with the encounter system from 02-01
     python:

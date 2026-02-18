@@ -50,6 +50,8 @@ Implement encounter routing based on player state and complete the introspection
 - Goal: subtly coach player away from NSFW toward healthier beliefs
 - Visual changes based on belief state - same scene appears different based on player's internal state
 - "Evil path" consequences - player feels extreme negative emotions when acting against positive beliefs
+- **Deepest beliefs:** "Evil" beliefs ultimately stem from wanting connection - "you just want people to feel how you feel so you're not alone"
+- **Permission theme:** People do what they do and attach meaning from their belief system - therapy helps uncover and dismiss "other people's baggage"
 
 </specifics>
 

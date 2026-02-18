@@ -2,9 +2,11 @@
 errors listed below, and try again.
 
 
-File "game/script.rpy", line 377: expected statement.
-    def select_encounter(self, state):
-                        ^
+The label offer_encounter is defined twice, at File "game/data/encounters/therapy_encounters.rpy", line 65:
+label offer_encounter(game_state):
+and File "game/story/therapy/sessions.rpy", line 114:
+label offer_encounter(game_state):
+
 
 Ren'Py Version: Ren'Py 8.5.0.25111603
-Thu Jan  1 15:11:01 2026
+Tue Feb 17 09:42:52 2026

@@ -94,6 +94,8 @@ init -1 python:
     beliefs = {}
 
     # SELF-WORTH CONFLICT CLUSTER
+    # BASHAR PRINCIPLE: All negative beliefs are MISALIGNED with true self
+    # They're based on expectations (conditional worth) rather than acceptance (unconditional)
     
     beliefs["self.is-worthy"] = {
         "id": "self.is-worthy",
@@ -101,7 +103,8 @@ init -1 python:
         "type": "positive",
         "domain": "self-worth",
         "conflicts_with": ["self.is-unworthy", "self.must-earn-love", "self.is-fundamentally-flawed"],
-        "related_emotions": {"belonging": 3, "connection": 2, "hope": 2, "clarity": 1}
+        "related_emotions": {"belonging": 3, "connection": 2, "hope": 2, "clarity": 1},
+        "bashar_note": "Worth is inherent, not earned. You exist, therefore you are worthy."
     }
     
     beliefs["self.is-unworthy"] = {
@@ -109,10 +112,12 @@ init -1 python:
         "statement": "I am unworthy of love or good things",
         "type": "negative",
         "domain": "self-worth",
+        "misaligned": True,  # All negative beliefs are misaligned
         "absurdity": "high",
         "conflicts_with": ["self.is-worthy", "self.is-capable"],
         "resolution": "self.is-worthy",
-        "related_emotions": {"shame": 3, "loneliness": 3, "isolation": 2, "inadequacy": 2}
+        "related_emotions": {"shame": 3, "loneliness": 3, "isolation": 2, "inadequacy": 2},
+        "bashar_note": "Based on expectation: 'I should be different.' Reality: you are exactly as you need to be."
     }
     
     beliefs["self.must-earn-love"] = {
@@ -120,10 +125,12 @@ init -1 python:
         "statement": "I must earn love through achievement or sacrifice",
         "type": "negative",
         "domain": "self-worth",
+        "misaligned": True,
         "absurdity": "moderate",
         "conflicts_with": ["self.is-worthy", "existence.is-unconditional"],
         "resolution": "self.is-worthy",
-        "synthesis": "self.is-worthy-and-striving"  # Can be worthy AND want to grow
+        "synthesis": "self.is-worthy-and-striving",  # Can be worthy AND want to grow
+        "bashar_note": "Based on expectation: 'Love must be earned.' Reality: love is given freely by aligned beings."
     }
     
     # SYNTHESIS BELIEF - transcends the conflict
@@ -143,7 +150,8 @@ init -1 python:
         "type": "positive",
         "domain": "self-efficacy",
         "conflicts_with": ["self.is-failure", "self.is-fundamentally-flawed"],
-        "related_emotions": {"hope": 2, "clarity": 2, "confidence": 2}
+        "related_emotions": {"hope": 2, "clarity": 2, "confidence": 2},
+        "bashar_note": "Capability is neutral - you handle what shows up. No expectation of perfection."
     }
     
     beliefs["self.is-failure"] = {
@@ -151,14 +159,17 @@ init -1 python:
         "statement": "I am a failure at everything that matters",
         "type": "negative",
         "domain": "self-efficacy",
+        "misaligned": True,
         "absurdity": "extreme",
         "conflicts_with": ["self.is-capable", "self.is-resilient"],
         "resolution": "self.is-capable",
         "deeper": ["self.is-fundamentally-flawed"],  # This belief supports the failure belief
-        "related_emotions": {"shame": 3, "inadequacy": 3, "hopelessness": 2}
+        "related_emotions": {"shame": 3, "inadequacy": 3, "hopelessness": 2},
+        "bashar_note": "Based on expectation: 'I should succeed.' Reality: failure is feedback, not identity."
     }
     
     # WORLDVIEW CONFLICT CLUSTER
+    # BASHAR PRINCIPLE: The world is NEUTRAL - your belief filters determine your experience
     
     beliefs["world.is-safe"] = {
         "id": "world.is-safe",
@@ -166,7 +177,8 @@ init -1 python:
         "type": "positive",
         "domain": "world-view",
         "conflicts_with": ["world.is-dangerous", "world.is-hostile"],
-        "related_emotions": {"trust": 2, "calm": 2, "hope": 1}
+        "related_emotions": {"trust": 2, "calm": 2, "hope": 1},
+        "bashar_note": "When aligned, you attract experiences that reflect safety. Your vibration creates your reality."
     }
     
     beliefs["world.is-dangerous"] = {
@@ -174,11 +186,13 @@ init -1 python:
         "statement": "The world is fundamentally dangerous and threatening",
         "type": "negative",
         "domain": "world-view",
+        "misaligned": True,
         "absurdity": "moderate",
         "conflicts_with": ["world.is-safe", "world.is-neutral"],
         "resolution": "world.is-neutral",
         "synthesis": "world.is-complex",
-        "related_emotions": {"anxiety": 3, "fear": 2, "stress": 2}
+        "related_emotions": {"anxiety": 3, "fear": 2, "stress": 2},
+        "bashar_note": "Based on expectation: 'The world should be safe.' Reality: world is neutral. Your beliefs create danger or safety."
     }
     
     beliefs["world.is-neutral"] = {
@@ -186,7 +200,8 @@ init -1 python:
         "statement": "The world is neutral; it has both danger and safety",
         "type": "positive",
         "domain": "world-view",
-        "conflicts_with": ["world.is-hostile"]
+        "conflicts_with": ["world.is-hostile"],
+        "bashar_note": "The world reflects what you believe. Change your beliefs, change your world."
     }
     
     # SYNTHESIS - transcends safe vs dangerous
@@ -199,6 +214,9 @@ init -1 python:
     }
     
     # RELATIONSHIP CONFLICT CLUSTER
+    # BASHAR PRINCIPLE: Others reflect your beliefs back to you
+    # If you expect them to be cruel, you'll interpret neutral behavior as cruel
+    # The purest belief allows others to be FULLY themselves, including all "bad" traits
     
     beliefs["others.are-friendly"] = {
         "id": "others.are-friendly",
@@ -206,7 +224,8 @@ init -1 python:
         "type": "positive",
         "domain": "relationships",
         "conflicts_with": ["others.are-cruel", "others.are-threatening"],
-        "related_emotions": {"connection": 3, "belonging": 2, "trust": 2}
+        "related_emotions": {"connection": 3, "belonging": 2, "trust": 2},
+        "bashar_note": "When you believe others are friendly, you attract friendly behavior. Your vibration creates your reality."
     }
     
     beliefs["others.are-cruel"] = {
@@ -214,11 +233,13 @@ init -1 python:
         "statement": "People are fundamentally cruel and will hurt me",
         "type": "negative",
         "domain": "relationships",
+        "misaligned": True,
         "absurdity": "high",
         "conflicts_with": ["others.are-friendly"],
         "resolution": "others.are-complex",
         "deeper": ["self.is-unworthy"],  # "I attract cruelty because I'm unworthy"
-        "related_emotions": {"fear": 2, "isolation": 3, "anger": 2}
+        "related_emotions": {"fear": 2, "isolation": 3, "anger": 2},
+        "bashar_note": "Based on expectation: 'Others should be kind.' Reality: others are neutral mirrors reflecting your beliefs."
     }
     
     beliefs["others.are-threatening"] = {
@@ -226,9 +247,11 @@ init -1 python:
         "statement": "Other people are threats to my safety",
         "type": "negative",
         "domain": "relationships",
+        "misaligned": True,
         "absurdity": "moderate",
         "conflicts_with": ["others.are-friendly"],
-        "resolution": "others.are-complex"
+        "resolution": "others.are-complex",
+        "bashar_note": "Based on expectation: 'Others should not threaten me.' Reality: allow others to be fully themselves, including their 'bad' traits."
     }
     
     beliefs["others.are-complex"] = {
@@ -236,30 +259,61 @@ init -1 python:
         "statement": "People are complex; some are kind, some aren't, and I can discern the difference",
         "type": "positive",
         "domain": "relationships",
-        "note": "Realistic view that allows for both trust and boundaries"
+        "note": "Realistic view that allows for both trust and boundaries",
+        "bashar_note": "Allows others to be fully themselves. You don't need them to be any particular way."
     }
     
     # EXISTENCE CONFLICT CLUSTER
+    # BASHAR PRINCIPLE: Life is inherently meaningless - this is NEUTRAL/POSITIVE
+    # The MEANING you attach to meaninglessness determines your experience
+    # "Empty/abandoned" = negative meaning attached → misaligned
+    # "Free to create" = positive meaning attached → aligned
     
     beliefs["existence.is-meaningful"] = {
         "id": "existence.is-meaningful",
-        "statement": "Life has inherent meaning and purpose",
+        "statement": "Life has inherent meaning and purpose waiting to be discovered",
         "type": "positive",
         "domain": "existential",
-        "conflicts_with": ["existence.is-meaningless"],
-        "related_emotions": {"hope": 3, "clarity": 2, "purpose": 2}
+        "conflicts_with": ["existence.is-meaningless-negative"],
+        "related_emotions": {"hope": 3, "clarity": 2, "purpose": 2},
+        "bashar_note": "Seeking external meaning is valid, but meaning is never 'found' - it's assigned"
     }
     
-    beliefs["existence.is-meaningless"] = {
-        "id": "existence.is-meaningless",
-        "statement": "Life is fundamentally meaningless and empty",
+    beliefs["existence.is-neutral"] = {
+        "id": "existence.is-neutral",
+        "statement": "Life has no inherent meaning - and that's liberation",
+        "type": "positive",  # This is POSITIVE in Bashar's framework!
+        "domain": "existential",
+        "conflicts_with": ["existence.is-meaningless-negative"],
+        "related_emotions": {"clarity": 3, "hope": 2, "freedom": 3},
+        "bashar_note": "The ultimate freedom - you get to choose what everything means. No pre-written script."
+    }
+    
+    beliefs["existence.is-meaningless-negative"] = {
+        "id": "existence.is-meaningless-negative",
+        "statement": "Life has no meaning and that means I am abandoned/empty",
         "type": "negative",
         "domain": "existential",
+        "misaligned": True,  # Marked as misaligned belief
         "absurdity": "extreme",
-        "conflicts_with": ["existence.is-meaningful", "self.can-attach-new-meaning"],
-        "resolution": "self.can-attach-new-meaning",
+        "conflicts_with": ["existence.is-neutral", "existence.is-meaningful", "self.can-attach-new-meaning"],
+        "resolution": "existence.is-neutral",  # Resolution is seeing it as neutral, not negative
         "deeper": ["self.is-unworthy", "world.is-hostile"],
-        "related_emotions": {"emptiness": 3, "hopelessness": 2, "isolation": 2}
+        "related_emotions": {"emptiness": 3, "hopelessness": 2, "isolation": 2},
+        "bashar_note": "The FACT (meaninglessness) is neutral. The MEANING (abandoned/empty) was assigned. Choose differently."
+    }
+    
+    # Legacy belief kept for compatibility - now redirects to proper interpretation
+    beliefs["existence.is-meaningless"] = {
+        "id": "existence.is-meaningless",
+        "statement": "Life has no inherent meaning (neutral fact)",
+        "type": "neutral",  # Changed from negative to neutral!
+        "domain": "existential",
+        "conflicts_with": [],
+        "resolution": "existence.is-neutral",
+        "related_emotions": {"clarity": 1},
+        "bashar_note": "This is a FACT, not a negative belief. The meaning you attach to it determines alignment.",
+        "note": "If player feels negatively about this, they've activated existence.is-meaningless-negative instead"
     }
     
     beliefs["self.can-attach-new-meaning"] = {
@@ -267,12 +321,15 @@ init -1 python:
         "statement": "I can create meaning through my choices and connections",
         "type": "positive",
         "domain": "existential",
-        "conflicts_with": [],  # Doesn't conflict - it transcends the meaning debate
+        "conflicts_with": ["existence.is-meaningless-negative"],
         "note": "Synthesis of meaningless vs meaningful - personal agency over meaning",
-        "related_emotions": {"clarity": 2, "hope": 3, "purpose": 2}
+        "related_emotions": {"clarity": 2, "hope": 3, "purpose": 2},
+        "bashar_note": "The core Bashar teaching: everything is neutral until YOU assign meaning"
     }
     
     # VULNERABILITY CONFLICT
+    # BASHAR PRINCIPLE: Vulnerability is NEUTRAL - not weakness or strength
+    # The meaning you attach determines your experience
     
     beliefs["self.is-vulnerable"] = {
         "id": "self.is-vulnerable",
@@ -280,7 +337,8 @@ init -1 python:
         "type": "neutral",  # Not inherently negative!
         "domain": "self-awareness",
         "conflicts_with": ["self.is-invulnerable"],
-        "note": "Can coexist with resilience - vulnerability ≠ weakness"
+        "note": "Can coexist with resilience - vulnerability ≠ weakness",
+        "bashar_note": "Vulnerability is a fact, not a flaw. The meaning 'weakness' was assigned. Choose 'openness' instead."
     }
     
     beliefs["self.is-resilient"] = {
@@ -290,7 +348,8 @@ init -1 python:
         "domain": "self-efficacy",
         "conflicts_with": ["self.is-fundamentally-flawed"],
         "synthesis_with": "self.is-vulnerable",  # Can be both vulnerable AND resilient
-        "synthesis": "self.is-vulnerable-and-resilient"
+        "synthesis": "self.is-vulnerable-and-resilient",
+        "bashar_note": "Resilience comes from accepting what is, not resisting what happened."
     }
     
     beliefs["self.is-vulnerable-and-resilient"] = {
@@ -298,7 +357,52 @@ init -1 python:
         "statement": "I can be hurt, and I can heal. Both are true.",
         "type": "positive",
         "domain": "integration",
-        "note": "The integration of vulnerability and strength"
+        "note": "The integration of vulnerability and strength",
+        "bashar_note": "This is the aligned state: accepting both without judgment."
+    }
+    
+    # ============================================================================
+    # BASHAR CORE PHILOSOPHY - Expectation-Free Living
+    # ============================================================================
+    
+    beliefs["self.lives-without-expectations"] = {
+        "id": "self.lives-without-expectations",
+        "statement": "I allow life to unfold without demanding it be any particular way",
+        "type": "positive",
+        "domain": "mastery",
+        "conflicts_with": [],
+        "related_emotions": {"peace": 3, "freedom": 3, "clarity": 2},
+        "bashar_note": "The highest alignment. No expectations means no disappointment. Life becomes an adventure, not a test."
+    }
+    
+    beliefs["others.are-free-to-be-themselves"] = {
+        "id": "others.are-free-to-be-themselves",
+        "statement": "I allow others to be exactly who they are, including all 'negative' traits",
+        "type": "positive",
+        "domain": "relationships",
+        "conflicts_with": ["others.should-be-different"],
+        "related_emotions": {"peace": 2, "freedom": 2, "compassion": 2},
+        "bashar_note": "The purest belief. Others will be the version of themselves YOU need at any moment. How you interpret them is YOUR belief system."
+    }
+    
+    beliefs["self.can-attach-positive-meaning"] = {
+        "id": "self.can-attach-positive-meaning",
+        "statement": "I choose to assign meanings that serve my highest excitement",
+        "type": "positive",
+        "domain": "existential",
+        "conflicts_with": [],
+        "related_emotions": {"joy": 2, "excitement": 3, "clarity": 2},
+        "bashar_note": "Act on your highest excitement without expectation of outcome. The excitement IS the purpose."
+    }
+    
+    beliefs["existence.is-unconditional"] = {
+        "id": "existence.is-unconditional",
+        "statement": "Existence doesn't require conditions or reasons - it simply IS",
+        "type": "positive",
+        "domain": "existential",
+        "conflicts_with": ["self.must-earn-love"],
+        "related_emotions": {"peace": 2, "freedom": 2, "clarity": 1},
+        "bashar_note": "You don't need to justify your existence. You exist. That's enough. That's everything."
     }
 
     # COMMON CONFLICT PATTERNS TO MODEL
@@ -316,8 +420,8 @@ init -1 python:
     # Synthesis: "People are complex - I can discern"
 
     # Pattern 4: Life as meaningless vs meaningful
-    # Conflict: "Nothing matters" vs "Everything matters"
-    # Synthesis: "I create meaning through choice"
+    # BASHAR SYNTHESIS: "Life is meaningless AND that's liberation - I create meaning"
+    # MISALIGNED: "Life is meaningless THEREFORE I am abandoned/empty"
 
     # Pattern 5: Self as broken vs capable
     # Conflict: "I'm fundamentally flawed" vs "I'm capable"
@@ -513,5 +617,39 @@ init -1 python:
             "definition": "Emotional distance and disengagement",
             "baseline": 2,
             "related_beliefs": ["self.is-unworthy", "others.are-cruel"]
+        },
+        
+        # BASHAR-ALIGNED EMOTIONS - Highest frequency states
+        
+        "freedom": {
+            "group": "bashar_aligned",
+            "definition": "Liberation from expectations and conditions",
+            "baseline": 3,
+            "related_beliefs": ["existence.is-neutral", "self.lives-without-expectations"],
+            "bashar_note": "The feeling of alignment - nothing blocking your natural flow"
+        },
+        
+        "excitement": {
+            "group": "bashar_aligned",
+            "definition": "The frequency of your true self calling you forward",
+            "baseline": 4,
+            "related_beliefs": ["self.can-attach-positive-meaning", "self.is-worthy"],
+            "bashar_note": "Excitement is NOT anticipation or anxiety - it's your GPS for alignment"
+        },
+        
+        "peace": {
+            "group": "bashar_aligned",
+            "definition": "Complete acceptance of what is, without resistance",
+            "baseline": 4,
+            "related_beliefs": ["self.lives-without-expectations", "others.are-free-to-be-themselves"],
+            "bashar_note": "Peace is not the absence of conflict - it's the absence of resistance to what is"
+        },
+        
+        "joy": {
+            "group": "bashar_aligned",
+            "definition": "Unconditional positive state, not dependent on circumstances",
+            "baseline": 4,
+            "related_beliefs": ["self.can-attach-positive-meaning", "existence.is-neutral"],
+            "bashar_note": "Joy is your natural state when negative beliefs are not filtering it out"
         }
     }

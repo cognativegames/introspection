@@ -85,6 +85,8 @@ label encounter_loop:
 
 label present_encounter(encounter):
     # Present a single encounter to the player
+    # FIXED: Removed double presentation - flow now goes smoothly from
+    # context → observation → feeling → interpretation in one sequence
     
     # Set the scene
     python:
@@ -92,7 +94,7 @@ label present_encounter(encounter):
     
     scene expression scene_bg with fade
     
-    # Show context
+    # Show context (sets up the scenario)
     if "context" in encounter:
         "[encounter['context']]"
     
@@ -102,25 +104,35 @@ label present_encounter(encounter):
     # INTERPRETATION PHASE
     $ game_state.phase = GAME_PHASE_INTERPRET
     
-    # Pause for player to notice their reaction
+    # Show encounter image if it exists
+    if "image" in encounter:
+        show expression encounter["image"] at center with dissolve
+    
+    # Combined feeling + interpretation flow
+    # Player notices their reaction, then immediately chooses how to interpret
+    "You notice your reaction to this..."
+    
     menu:
-        "How does this make you feel?"
+        "What's your first instinct about what this means?"
         
-        "I feel anxious.":
+        "I feel anxious about this.":
             $ game_state.adjust_emotions({"anxiety": 5})
+            # Now show interpretation options with anxiety tint
+            call choose_interpretation(encounter, "anxious")
             
-        "I feel curious.":
+        "I feel curious about this.":
             $ game_state.adjust_emotions({"clarity": 5})
+            # Show interpretation options with curiosity
+            call choose_interpretation(encounter, "curious")
             
         "I feel nothing really.":
             $ game_state.adjust_emotions({"isolation": 5})
+            # Show interpretation options with detachment
+            call choose_interpretation(encounter, "detached")
         
-        "I'm not sure yet.":
-            pass
-    
-    # Now present interpretation options
-    # Each interpretation activates different beliefs
-    call choose_interpretation(encounter)
+        "I'm not sure yet. Let me think.":
+            # Show interpretation options neutrally
+            call choose_interpretation(encounter, "neutral")
     
     # Show consequence of interpretation
     call show_interpretation_consequence
@@ -144,33 +156,34 @@ label present_encounter(encounter):
     
     return
 
-label choose_interpretation(encounter):
+label choose_interpretation(encounter, feeling_tone="neutral"):
     # Player chooses how to interpret the encounter
     # This is where beliefs get activated
+    # FIXED: No longer re-displays context/observation (already shown in present_encounter)
     
-    scene introspection_space with dissolve
-    
-    # Show encounter image if it exists
-    if "image" in encounter:
-        show expression encounter["image"] at center with dissolve
-    
-    # Show observation
-    "[encounter['observation']]"
-    
-    if "context" in encounter:
-        "{i}[encounter['context']]{/i}"
-    
-    # BUILD MENU FROM INTERPRETATIONS
+    # Build menu from interpretations with feeling-tone appropriate framing
     python:
-        # Build menu items from interpretations
         menu_items = []
         interpretations = encounter.get("interpretations", [])
         
+        # Add feeling-tone specific intro text
+        feeling_intro = {
+            "anxious": "Your anxiety makes certain interpretations feel more likely...",
+            "curious": "Your curiosity opens up different possibilities...",
+            "detached": "Your detachment makes it hard to connect, but you try...",
+            "neutral": "You consider what this might mean..."
+        }
+    
+    # Show feeling-appropriate intro
+    "[feeling_intro.get(feeling_tone, feeling_intro['neutral'])]"
+    
+    # Build menu items from interpretations
+    python:
         for interp in interpretations:
             # Add display text and the full interpretation dict
             menu_items.append((interp["display"], interp))
     
-    # Present as standard RenPy menu (buttons at bottom)
+    # Present as standard RenPy menu
     python:
         chosen_interpretation = renpy.display_menu(menu_items, interact=True)
     
@@ -203,23 +216,53 @@ label choose_interpretation(encounter):
             
             # Store for consequence display
             last_interpretation = chosen_interpretation
+            store.last_interpretation = chosen_interpretation
 
+    # THERAPY INTERVENTION CHECK
+    # Wire up therapy interventions for negative interpretations
     python:
         needs_therapy = False
         therapy_label = None
         
         if chosen_interpretation and not chosen_interpretation.get("aligns", True):
-            # Negative choice - check if we should intervene
+            # Negative choice - ALWAYS offer therapy guidance
+            # This is the key fix: therapy guides the player to insight
             if "therapy_label" in chosen_interpretation:
-                # Check if emotion high enough to warrant intervention
-                dominant = game_state.get_dominant_emotion()
-                if dominant and game_state.emotions.get(dominant, 0) >= 50:
-                    needs_therapy = True
-                    therapy_label = chosen_interpretation["therapy_label"]
+                needs_therapy = True
+                therapy_label = chosen_interpretation["therapy_label"]
+            else:
+                # Auto-generate therapy label from belief if not specified
+                activated_beliefs = chosen_interpretation.get("activates", [])
+                if activated_beliefs:
+                    # Map common beliefs to therapy labels
+                    # All negative beliefs are misaligned - therapy helps realign
+                    belief_to_therapy = {
+                        "self.is-unworthy": "encounter_therapy_self_unworthy",
+                        "self.is-fundamentally-flawed": "encounter_mirror_moment_see_flaws",
+                        "self.must-earn-love": "encounter_therapy_breathing_room_feel_guilty",
+                        "others.are-threatening": "encounter_therapy_stray_dog_fear",
+                        "others.use-me": "encounter_therapy_shared_grief_withdraw",
+                        "abandonment.is-inevitable": "encounter_therapy_abandonment",
+                        "world.is-dangerous": "encounter_therapy_stray_dog_fear",
+                        "existence.is-meaningless-negative": "encounter_therapy_random_kindness_meaningless",
+                        "self.is-failure": "encounter_therapy_self_failure",
+                        "others.are-better": "encounter_therapy_others_better",
+                    }
+                    for belief_id in activated_beliefs:
+                        if belief_id in belief_to_therapy:
+                            therapy_label = belief_to_therapy[belief_id]
+                            needs_therapy = True
+                            break
     
-    # Call therapy if needed
+    # Call therapy if needed - this is the guided conversation
     if needs_therapy and therapy_label:
-        call expression therapy_label
+        # Check if the therapy label actually exists before calling
+        $ has_label = renpy.has_label(therapy_label)
+        if has_label:
+            call expression therapy_label
+        else:
+            # Fallback: show a generic therapy moment
+            call therapy_generic_negative
     
     return
 
@@ -352,6 +395,8 @@ label introspection_examine:
 
 label introspection_examine_deeper:
     # Deep examination of a specific belief - potential resolution
+    # IMPROVED: More gradual, guided conversation before offering resolution
+    # The player should feel "oh wow I never saw it that way" not "ya ya I know"
     
     $ game_state.phase = GAME_PHASE_RESOLUTION
     
@@ -378,55 +423,170 @@ label introspection_examine_deeper:
         
         "'{i}[examining_belief['statement']]{/i}'"
         
-        "Where did this come from? Has it always been true?"
+        # PHASE 1: Gentle exploration - not confronting, just curious
+        "Let's approach this gently. No judgment. Just curiosity."
+        
+        "When this belief shows up in your life, what does it feel like in your body?"
         
         menu:
-            "When did you first start believing this?"
+            "It feels like a weight. Heavy. Pressing down.":
+                $ game_state.adjust_emotions({"awareness": 10})
+                "Interesting. Where do you feel that weight most?"
+                
+                menu:
+                    "In my chest. Like I can't breathe fully.":
+                        "The chest. The center of vulnerability. This belief has been protecting something there."
+                        
+                    "In my stomach. A knot I can't untie.":
+                        "The gut. Where we process what we can't digest. This belief has been holding something undigested."
+                        
+                    "In my shoulders. Tension I can't release.":
+                        "The shoulders. Where we carry what we think is ours to bear alone. This belief has been isolating you."
             
-            "I can't remember. It's always been there.":
-                "So deep you can't see its origin. That's how core beliefs work."
-                
-                "But just because something has been there a long time..."
-                "...doesn't mean it's true."
-                
-            "I remember. Someone told me this, or showed me.":
-                "An old wound. An old voice."
-                
-                "But that was then. Is it still true now?"
-                
-            "I'm not sure.":
-                "That uncertainty? That's the first crack in the belief."
+            "It feels like a tightness. Contracted. Small.":
+                $ game_state.adjust_emotions({"awareness": 10})
+                "Contracted. As if making yourself smaller keeps you safer."
+                "What would happen if you expanded instead?"
+            
+            "It feels like numbness. Blank. Empty.":
+                $ game_state.adjust_emotions({"awareness": 10})
+                "Numbness is protection. It means the original pain was too much to feel."
+                "The belief is guarding you from something. What might that be?"
+        
+        # PHASE 2: Trace the belief's origin with compassion
+        "Now, let's get curious about where this belief came from."
+        
+        "Not to blame anyone. Just to understand."
         
         menu:
-            "What would happen if this belief wasn't true?"
+            "It feels like it's always been there. I can't remember a time without it.":
+                "Then it was planted very young. Before you had words for it."
+                
+                "Children absorb the emotional atmosphere around them like sponges."
+                
+                "If the people around you believed something about themselves..."
+                "...you would have inherited that belief without question."
+                
+                "It's not your fault for having it. It's just what happened."
             
-            "I don't know. It's scary to imagine.":
-                $ game_state.adjust_emotions({"anxiety": 10})
-                "Fear. The belief's last defense."
+            "I remember when it started. A specific moment or person.":
+                "That moment was real. The pain was real."
                 
-            "I think... I might feel lighter. Freer.":
-                $ game_state.adjust_emotions({"hope": 15, "clarity": 10})
+                "But here's what's interesting: a child's mind doesn't understand complexity."
                 
-                "Yes. You see it now."
+                "When something hurt, the child's mind decided: 'This must mean something about ME.'"
                 
-                "This belief has been a weight. Not a truth."
+                "Because if it's about you, you can try to fix it. If it's about them... you're powerless."
+                
+                "So the belief was a kind of control. A way to make sense of something senseless."
+            
+            "I think I learned it from watching others. The way they treated themselves.":
+                "We learn by watching. By absorbing what's normal."
+                
+                "If the people around you carried this belief like a shadow..."
+                "...you would have thought: 'This is just how people are.'"
+                
+                "But it wasn't how people ARE. It was how THEY were."
+        
+        # PHASE 3: Examine what the belief has been trying to do
+        "Every belief, even the painful ones, started as an attempt to help."
+        
+        "What do you think this belief has been trying to do for you?"
+        
+        menu:
+            "It's been trying to keep me safe from rejection.":
+                "Yes. By making you smaller, quieter, less visible... it thought it could protect you."
+                
+                "But here's the question: has it actually worked?"
+                
+                menu:
+                    "No. I still feel rejected. Just... preemptively.":
+                        "Exactly. The belief rejects you before anyone else can."
+                        
+                        "It's been rejecting you on their behalf. For years."
+                        
+                        "You've been carrying their potential rejection as if it already happened."
+                        
+                        $ game_state.adjust_emotions({"clarity": 15, "grief": 5})
+                    
+                    "Sometimes. But the cost has been too high.":
+                        "And what has that cost been?"
+                        
+                        menu:
+                            "I've hidden parts of myself. Never let anyone see the real me.":
+                                "So you've been safe from their rejection of a false self..."
+                                "...but isolated from ever being truly known."
+                                
+                                "That's not safety. That's exile."
+                            
+                            "I've missed opportunities. Chances to connect. To grow.":
+                                "The belief closed doors before you could even knock."
+                                
+                                "It thought it was protecting you from failure."
+                                "But it was protecting you from life."
+            
+            "It's been trying to make me better. Push me to improve.":
+                "Ah, the belief that criticism creates growth."
+                
+                "But let me ask you: would you treat a child this way to help them learn?"
+                
+                menu:
+                    "No... I'd be gentle. Encouraging.":
+                        "Exactly. The belief that shame motivates is a lie."
+                        
+                        "Shame contracts. It makes us hide. It makes us small."
+                        
+                        "Growth requires safety. Encouragement. The room to make mistakes."
+                        
+                        "This belief has been holding you back while pretending to push you forward."
+                        
+                        $ game_state.adjust_emotions({"clarity": 15})
+                    
+                    "Yes. Pain is a teacher.":
+                        "Pain teaches us that something is wrong."
+                        
+                        "But it doesn't teach us what's right."
+                        
+                        "A child who touches a hot stove learns not to touch it again."
+                        
+                        "But that doesn't teach them how to cook."
+        
+        # PHASE 4: Now ask if they're ready to see it differently
+        "Here's what I want you to consider:"
+        
+        "This belief was a child's solution to a grown-up problem."
+        
+        "It made sense when you were small. When you had no power. When you were just trying to survive."
+        
+        "But you're not that child anymore."
+        
+        "And the world is not the same threatening place it was then."
+        
+        menu:
+            "I'm starting to see it differently.":
+                $ game_state.adjust_emotions({"hope": 15, "clarity": 20})
+                
+                "That shift you feel? That's the belief loosening its grip."
                 
                 # Check if resolution is available
                 python:
                     resolution_belief_id = examining_belief.get("resolution")
+                    resolution_belief = None
                     
                     if resolution_belief_id and resolution_belief_id in beliefs:
                         resolution_belief = beliefs[resolution_belief_id]
                 
                 if resolution_belief:
-                    "What if instead, you believed:"
+                    "What if you could believe something new instead?"
+                    
+                    "Not because I'm telling you to. But because it feels more true to who you are now."
+                    
+                    "What if:"
                     
                     "'{i}[resolution_belief['statement']]{/i}'"
                     
                     menu:
-                        "Does this feel more true?"
-                        
-                        "Yes. This resonates.":
+                        "That... actually feels like a relief. Like something I needed to hear.":
                             # RESOLUTION HAPPENS
                             play sound "resolution_harmonic.mp3"
                             scene introspection_resolution with flash
@@ -438,25 +598,44 @@ label introspection_examine_deeper:
                             "The old belief dissolves."
                             "The new belief takes root."
                             
-                            "Not forced. Not fake. Just... true."
+                            "Not forced. Not fake. Just... finally true."
                             
                             $ game_state.adjust_emotions({"hope": 20, "clarity": 20, "anxiety": -15, "overwhelm": -10})
                             
                             "Reality stabilizes. Everything becomes clearer."
                             
-                        "I want to, but I'm not ready yet.":
-                            "That's okay. Seeds have been planted."
+                        "I want to believe it, but I'm not quite there yet.":
+                            "That's okay. Real change isn't about flipping a switch."
+                            
+                            "You've seen the old belief for what it is: a child's protection that's no longer needed."
                             
                             # Mark belief as examined
                             $ game_state.beliefs[examining_belief["id"]] = BELIEF_INTENSITY_EXAMINED
                             
-                            "When you're ready, it will be here waiting."
+                            "The seed has been planted. Let it grow in its own time."
+                    
+                else:
+                    # No resolution belief defined - just mark as examined
+                    $ game_state.beliefs[examining_belief["id"]] = BELIEF_INTENSITY_EXAMINED
+                    $ game_state.adjust_emotions({"hope": 10, "clarity": 10})
+                    
+                    "You've seen through the belief. That's the first step."
+                    
+                    "In time, you'll discover what wants to take its place."
             
-            "I need more time to think about this.":
-                "Take all the time you need."
+            "I understand what you're saying, but I'm not ready to let go yet.":
+                "That's okay. Beliefs are stubborn. They don't surrender easily."
+                
+                "But you've done something important today: you've SEEN it."
+                
+                "You can't unsee it now. Every time this belief shows up..."
+                "...you'll recognize it. Question it. Choose differently."
                 
                 # Mark as examined
                 $ game_state.beliefs[examining_belief["id"]] = BELIEF_INTENSITY_EXAMINED
+                $ game_state.adjust_emotions({"clarity": 5})
+                
+                "That's how change happens. Not in a single moment. In a thousand small recognitions."
     
     scene introspection_space with fade
     
@@ -522,5 +701,83 @@ label encounter_loop_end:
     # Reset for next session
     $ game_state.scene_count = 0
     $ game_state.phase = GAME_PHASE_STORY
+    
+    return
+
+# ============================================================================
+# GENERIC THERAPY INTERVENTION
+# Fallback when no specific therapy label exists for a belief
+# ============================================================================
+
+label therapy_generic_negative:
+    # Generic therapy intervention for negative interpretations
+    # Used when no specific therapy_label is defined
+    
+    scene therapy_office with fade
+    show dr_chen_professional at center with dissolve
+    
+    dr_chen "I noticed something just now. Something in how you interpreted that."
+    
+    dr_chen "The meaning you gave to that situation... it came from somewhere inside you."
+    
+    dr_chen "Not from the situation itself."
+    
+    python:
+        # Get the belief that was just activated
+        activated = []
+        if last_interpretation and "activates" in last_interpretation:
+            activated = last_interpretation.get("activates", [])
+        
+        belief_statement = "a negative belief about yourself"
+        if activated and activated[0] in beliefs:
+            belief_statement = beliefs[activated[0]]["statement"]
+    
+    dr_chen "You just activated: '{i}[belief_statement]{/i}'"
+    
+    dr_chen "Is that really true? Or is it just... familiar?"
+    
+    menu:
+        "It feels true. I've believed it for so long.":
+            dr_chen "Familiar feels like true. But they're not the same thing."
+            
+            dr_chen "You've been practicing this thought for years. Of course it feels natural."
+            
+            dr_chen "But what if it's just a habit? Not a truth?"
+            
+            menu:
+                "A habit I could change?":
+                    $ game_state.adjust_emotions({"hope": 10, "clarity": 10})
+                    $ game_state.introspection_depth += 1
+                    
+                    dr_chen "Exactly. Habits can be changed. They take time, but they're not permanent."
+                    
+                    dr_chen "Every time you notice this belief and question it..."
+                    dr_chen "...you weaken its grip."
+                    
+                    scene therapy_office_clear with dissolve
+                    
+                    dr_chen "That's the work. Not forcing yourself to believe something different."
+                    dr_chen "Just noticing. Questioning. Choosing differently, one moment at a time."
+                
+                "But what if it IS true?":
+                    dr_chen "Then let it be true. But let it be examined."
+                    
+                    dr_chen "If it survives your honest scrutiny, it will be stronger for it."
+                    
+                    dr_chen "But most beliefs like this... they crumble when we really look at them."
+                    
+                    dr_chen "Not because we force them to. Because they were never solid to begin with."
+        
+        "I'm not sure anymore. You're making me question it.":
+            $ game_state.adjust_emotions({"clarity": 15, "hope": 5})
+            $ game_state.introspection_depth += 1
+            
+            dr_chen "Good. That questioning? That's the beginning of freedom."
+            
+            scene therapy_office_clear with dissolve
+            
+            dr_chen "The belief has been running on autopilot. Now you've seen it."
+            
+            dr_chen "You can't unsee it. And that changes everything."
     
     return
